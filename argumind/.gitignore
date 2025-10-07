@@ -1,0 +1,16 @@
+node_modules
+.next
+out
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+prisma/dev.db
+
+# Editor directories and files
+.vscode
+.idea
+*.swp
+*.log
+.DS_Store

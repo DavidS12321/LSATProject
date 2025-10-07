@@ -1,0 +1,13 @@
+{
+  "name": "lsatproject",
+  "private": true,
+  "workspaces": [
+    "argumind"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace argumind",
+    "build": "npm run build --workspace argumind",
+    "start": "npm run start --workspace argumind",
+    "lint": "npm run lint --workspace argumind"
+  }
+}
