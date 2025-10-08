@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema, signUpSchema, type SignInValues, type SignUpValues } from "@/lib/validators";
@@ -22,6 +24,9 @@ type AuthFormProps = {
 
 export function AuthForm({ mode: initialMode = "signIn" }: AuthFormProps) {
   const [mode, setMode] = useState<Mode>(initialMode);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const router = useRouter();
   const schema = useMemo(() => (mode === "signIn" ? signInSchema : signUpSchema), [mode]);
 
   const {
@@ -36,13 +41,63 @@ export function AuthForm({ mode: initialMode = "signIn" }: AuthFormProps) {
 
   useEffect(() => {
     reset();
+    setError(null);
+    setSuccess(null);
   }, [mode, reset]);
 
   const onSubmit = async (values: BaseFormValues) => {
+    setError(null);
+    setSuccess(null);
+
     const parsed = schema.parse(values);
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    console.info("Submitted", mode, parsed);
-    alert(`Validation succeeded for ${mode === "signIn" ? "sign in" : "sign up"}! Check the console for payload.`);
+
+    try {
+      if (mode === "signUp") {
+        const { email, password, name } = parsed as SignUpValues;
+
+        const response = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+          }),
+        });
+
+        if (!response.ok) {
+          const data = (await response.json().catch(() => null)) as { error?: string } | null;
+          throw new Error(data?.error ?? "Unable to create your account.");
+        }
+
+        setSuccess("Account created! Signing you in...");
+      }
+
+      const { email, password } = parsed as SignInValues;
+
+      const signInResult = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (signInResult?.error) {
+        const message =
+          signInResult.error === "CredentialsSignin"
+            ? "Invalid email or password."
+            : signInResult.error;
+        throw new Error(message);
+      }
+
+      setSuccess(mode === "signIn" ? "Welcome back!" : "You're all set—welcome aboard!");
+      router.refresh();
+    } catch (submissionError) {
+      const message =
+        submissionError instanceof Error && submissionError.message
+          ? submissionError.message
+          : "Something went wrong. Please try again.";
+      setError(message);
+    }
   };
 
   return (
@@ -74,6 +129,9 @@ export function AuthForm({ mode: initialMode = "signIn" }: AuthFormProps) {
       </div>
 
       <form className="mt-6 space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
+        {error ? <p className="rounded-xl bg-rose-500/10 px-4 py-3 text-sm text-rose-200">{error}</p> : null}
+        {success ? <p className="rounded-xl bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">{success}</p> : null}
+
         {mode === "signUp" && (
           <div>
             <label className="label" htmlFor="name">
