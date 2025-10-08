@@ -44,6 +44,11 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Password verification failed. Please try again.");
         }
 
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        };
         return user;
       }
     }),
