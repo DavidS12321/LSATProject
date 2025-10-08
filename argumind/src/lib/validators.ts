@@ -33,10 +33,7 @@ export type SignUpValues = z.infer<typeof signUpSchema>;
 export const registerUserSchema = z.object({
   name: signUpFields.name,
   email: signUpFields.email,
-  password: signUpFields.password,
-  name: signUpSchema.shape.name,
-  email: signUpSchema.shape.email,
-  password: signUpSchema.shape.password
+  password: signUpFields.password
 });
 
 export type RegisterUserValues = z.infer<typeof registerUserSchema>;
