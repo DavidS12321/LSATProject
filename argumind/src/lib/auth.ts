@@ -49,6 +49,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           email: user.email
         };
+        return user;
       }
     }),
     GoogleProvider({
