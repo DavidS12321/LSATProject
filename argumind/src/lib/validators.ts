@@ -24,3 +24,11 @@ export const signUpSchema = z
 
 export type SignInValues = z.infer<typeof signInSchema>;
 export type SignUpValues = z.infer<typeof signUpSchema>;
+
+export const registerUserSchema = z.object({
+  name: signUpSchema.shape.name,
+  email: signUpSchema.shape.email,
+  password: signUpSchema.shape.password
+});
+
+export type RegisterUserValues = z.infer<typeof registerUserSchema>;
