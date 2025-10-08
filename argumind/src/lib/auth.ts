@@ -1,13 +1,13 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import type { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import type { NextAuthOptions } from "next-auth";
 
 import { prisma } from "./prisma";
 import { verifyPassword } from "./password";
 import { signInSchema } from "./validators";
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
@@ -49,7 +49,6 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           email: user.email
         };
-        return user;
       }
     }),
     GoogleProvider({
